@@ -15,7 +15,7 @@ const responseSchema = new Schema(
     responseType: {
       type: String,
       required: true,
-      enum: ["quiz_summary", "recommendation", "chat_completion"],
+      enum: ["quiz_summary", "recommendation", "chat_completion", "summary"],
       trim: true,
     },
     content: {
@@ -30,7 +30,7 @@ const responseSchema = new Schema(
     sourceModel: {
       type: String,
       required: true,
-      enum: ["Quiz", "Chat", "UserInput"],
+      enum: ["Quiz", "Chat", "UserInput", "Summary", "Recommendation"],
     },
   },
   { timestamps: true }

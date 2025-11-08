@@ -1,5 +1,5 @@
-import { asyncHandler, apiError, apiResponse } from "../utils/index.js";
-import { Chat, UserInput, Response, Quiz } from "../models/index.js";
+import { asyncHandler, apiError, apiResponse, myApi } from "../utils/index.js";
+import { Chat, UserInput, Response, Quiz, Summary, Recommendation } from "../models/index.js";
 // Import other controllers as you build them out
 import { createQuiz } from "./quiz.controller.js";
 import { model as geminiModel } from "../gemini/gemini.js";
@@ -28,7 +28,7 @@ const handleChatInteraction = asyncHandler(async (req, res, next) => {
 
     
 
-  const inputType = category === "quiz" ? "link" : "query";
+  const inputType = ["quiz", "summarizer"].includes(category) ? "link" : "query";
 
   // 2. Save the user's message to the UserInput model
   const newUserInput = await UserInput.create({
@@ -51,19 +51,72 @@ const handleChatInteraction = asyncHandler(async (req, res, next) => {
       return createQuiz(req, res, next);
 
     case "summarizer":
-      // TODO: Implement summarizer logic, likely calling your ML model
-      responseData = { summary: `This is a summary for: "${userInput}"` };
-      responseType = "chat_completion";
-      source = chat._id;
-      sourceModel = "Chat";
+      try {
+        // 1. Call the ML model's /summarize endpoint
+        const mlApiResponse = await myApi.post("/summarize", { url: userInput });
+        const summaryData = mlApiResponse.data;
+
+        if (!summaryData || !summaryData.summary) {
+          throw new apiError(500, "Received invalid summary data from the ML model.");
+        }
+
+        // 2. Create a new Summary document
+        const newSummary = await Summary.create({
+          user: user._id,
+          ...summaryData.summary, // Spread the fields from the ML response
+        });
+
+        responseData = newSummary;
+        responseType = "summary"; // Assuming you'll add 'summary' to your Response model enum
+        source = newSummary._id;
+        sourceModel = "Summary";
+      } catch (error) {
+        throw new apiError(500, "Failed to generate summary from the ML model.");
+      }
       break;
 
     case "analyzer":
-      // TODO: Implement analyzer logic
-      responseData = { analysis: `This is an analysis for: "${userInput}"` };
-      responseType = "chat_completion";
-      source = chat._id;
-      sourceModel = "Chat";
+      try {
+        const prompt = `
+          Based on the topic "${userInput}", please recommend 3 high-quality articles, 3 videos, and 2 online courses.
+          Format the response as a raw JSON object only, with keys "articles", "videos", and "courses".
+          Each key should have an array of objects, with each object containing "title" and "link".
+          Do not include any markdown formatting like \`\`\`json.
+        `;
+
+        const result = await geminiModel.generateContent(prompt);
+        const responseText = await result.response.text();
+        const jsonString = responseText
+          .replace(/```json/g, "")
+          .replace(/```/g, "")
+          .trim();
+        
+        const resources = JSON.parse(jsonString);
+
+        // Save each category of recommendations
+        const savedRecommendations = [];
+        for (const category of Object.keys(resources)) {
+          const recommendation = await Recommendation.create({
+            user: user._id,
+            userInputs: newUserInput._id,
+            category: category,
+            recommendations: resources[category],
+          });
+          savedRecommendations.push(recommendation);
+        }
+
+        // The response to the frontend will be the raw JSON from Gemini
+        responseData = resources;
+        responseType = "recommendation";
+        // For the 'Response' model, we can link to the first recommendation created.
+        // This is a bit arbitrary, but we need a single source document.
+        source = savedRecommendations[0]?._id || chat._id;
+        sourceModel = savedRecommendations[0] ? "Recommendation" : "Chat";
+
+      } catch (error) {
+        console.error("Error in analyzer:", error);
+        throw new apiError(500, "Failed to find resources for the given topic.");
+      }
       break;
 
     case "general":

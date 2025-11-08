@@ -98,6 +98,24 @@ llm = ChatGroq(
 )
 
 # ------------------- Routes ------------------- #
+
+@app.get("/")
+def root_endpoint():
+    """
+    Root endpoint. Simple welcome message or API info.
+    """
+    return {
+        "status": "running",
+        "message": "Welcome to the YouTube Video AI Tool API!",
+        "endpoints": {
+            "/summarize": "POST - Summarize a YouTube video",
+            "/generate_quiz": "POST - Generate quiz questions from a video",
+            "/ask_question": "POST - Ask questions based on a video",
+            "/health": "GET - Check API health",
+            "/end": "GET - End/test endpoint"
+        }
+    }
+
 @app.post("/summarize")
 def summarize_video(request: VideoRequest):
     video_id = extract_video_id(request.url)

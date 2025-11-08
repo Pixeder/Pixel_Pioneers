@@ -29,6 +29,7 @@ const createQuiz = asyncHandler(async (req, res) => {
     // 1. API call to the ML model
     const response = await myApi.post("/generate_quiz", { url: link });
     mlResponse = response.data;
+    console.log("ML Model Response:", mlResponse);
   } catch (error) {
     // Log more detailed error information for debugging
     if (error.response) {
@@ -43,34 +44,14 @@ const createQuiz = asyncHandler(async (req, res) => {
     throw new apiError(500, "Received invalid quiz data from the ML model.");
   }
 
-  // Combine questions from all difficulty levels into a single array
-  const allQuestions = [];
-  if (mlResponse.quiz.easy_questions) {
-    mlResponse.quiz.easy_questions.forEach((q) =>
-      allQuestions.push({ ...q, difficulty: "easy" })
-  );
-}
-if (mlResponse.quiz.medium_questions) {
-  mlResponse.quiz.medium_questions.forEach((q) =>
-    allQuestions.push({ ...q, difficulty: "medium" })
-);
-}
-if (mlResponse.quiz.hard_questions) {
-  mlResponse.quiz.hard_questions.forEach((q) =>
-    allQuestions.push({ ...q, difficulty: "hard" })
-);
-}
-
   const questionIds = [];
-
-  // 2. Create Question and Option documents from the ML response
-  for (const questionData of allQuestions) {
+  for (const questionData of mlResponse.quiz) {
     // The ML model returns options as an object {"A": "text", "B": "text"}, not an array.
     // We need to convert it to an array of strings.
     const optionTexts = Object.values(questionData.options);
 
     const options = await Option.insertMany(
-      optionTexts.map((opt) => ({ text: opt }))
+      optionTexts.map((opt) => ({ text: opt, description: opt }))
     );
 
     // The ML model uses 'correct_answer' or 'correct' for the key of the correct option.
@@ -78,10 +59,10 @@ if (mlResponse.quiz.hard_questions) {
     const correctOptionText = questionData.options[correctOptionKey];
 
     const question = await Question.create({
-      text: questionData.question,
+      description: questionData.question,
       options: options.map((opt) => opt._id),
       correctOption: options.find((opt) => opt.text === correctOptionText)?._id,
-      difficulty: questionData.difficulty, // Add difficulty to the question
+      difficulty: questionData.difficulty || "medium", // Default to medium if not provided
     });
 
     questionIds.push(question._id);
@@ -98,7 +79,7 @@ if (mlResponse.quiz.hard_questions) {
   await Response.create({
     user: userId,
     userInput: userInput._id,
-    responseType: "quiz",
+    responseType: "quiz_summary",
     content: { message: "Quiz generated successfully." },
     source: quiz._id,
     sourceModel: "Quiz",

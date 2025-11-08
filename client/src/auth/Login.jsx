@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/UseAuth';
+import apiClient from '../services/api.service';
 
 const Login = () => {
   const [form, setForm] = useState({
@@ -16,13 +17,9 @@ const Login = () => {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  const API_BASE_URL = 'http://localhost:8000/api';
-
   // Check if user is already logged in
   useEffect(() => {
-   
-
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token');
     if (token) {
       verifyToken(token);
     }
@@ -30,21 +27,18 @@ const Login = () => {
 
   const verifyToken = async (token) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/v1/users`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      // apiClient will automatically add the token to the headers
+      const response = await apiClient.get('/v1/users');
 
-      if (response.ok) {
+      if (response.status === 200) {
         login(token);
         navigate('/transact', { replace: true });
       } else {
-        localStorage.removeItem('authToken');
+        localStorage.removeItem('token');
         localStorage.removeItem('userInfo');
       }
     } catch (error) {
-      localStorage.removeItem('authToken');
+      localStorage.removeItem('token');
       localStorage.removeItem('userInfo');
     }
   };
@@ -111,50 +105,33 @@ const Login = () => {
     setLoading(true);
 
     try {
-      console.log('Attempting login with URL:', `${API_BASE_URL}/v1/users/login`);
-
       const loginData = {
         password: form.password
       };
-
       if (isEmail(form.identifier)) {
         loginData.email = form.identifier;
       } else {
         loginData.username = form.identifier;
       }
 
-      console.log('Login data:', { ...loginData, password: '[HIDDEN]' });
+      console.log('Attempting login...');
 
-      const response = await fetch(`${API_BASE_URL}/v1/users/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(loginData),
-      });
-
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const textResponse = await response.text();
-        console.error('Non-JSON response:', textResponse);
-        throw new Error(`Server returned ${response.status}: ${response.statusText}. Expected JSON but got HTML.`);
-      }
-
-      const data = await response.json();
+      const response = await apiClient.post('/v1/users/login', loginData);
+      const data = response.data;
 
       console.log('=== COMPLETE API RESPONSE ===');
       console.log('Response status:', response.status);
       console.log('Response data:', JSON.stringify(data, null, 2));
       console.log('===============================');
 
-      if (response.ok && data.success) {
+      if (response.status === 200 && data.success) {
         console.log('Login request successful');
 
         const token = extractToken(data);
         console.log('Extracted token:', token ? 'present' : 'missing');
 
         if (token) {
-          localStorage.setItem('authToken', token);
+          localStorage.setItem('token', token);
           login(token);
 
           const user = data.data?.user || data.user;
@@ -177,37 +154,39 @@ const Login = () => {
           setMessage('Login successful but no authentication token received. Please contact support.');
         }
 
-      } else {
-        console.log('Login failed with status:', response.status);
-        const errorMessage = data.message || 'Login failed';
+      } 
+      // Note: Axios throws for non-2xx responses, so this 'else' block is unlikely to be hit.
+      // Error handling is now primarily in the catch block.
 
-        if (response.status === 401) {
+    } catch (error) {
+      console.error('Login error:', error);
+      
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        const { status, data } = error.response;
+        const errorMessage = data?.message || 'An unknown error occurred.';
+
+        console.log('Login failed with status:', status);
+        console.error('Login failed:', {
+          status: status,
+          message: data?.message,
+          errors: data?.errors,
+          success: data?.success
+        });
+
+        if (status === 401) {
           setMessage('Invalid credentials. Please check your username/email and password.');
-        } else if (response.status === 400) {
-          if (data.errors && Array.isArray(data.errors)) {
-            setMessage(data.errors.join(', '));
-          } else {
-            setMessage(errorMessage);
-          }
-        } else if (response.status === 429) {
+        } else if (status === 429) {
           setMessage('Too many login attempts. Please try again later.');
-        } else if (response.status === 500) {
+        } else if (status === 500) {
           setMessage('Server error. Please try again later.');
         } else {
           setMessage(errorMessage);
         }
-
-        console.error('Login failed:', {
-          status: response.status,
-          message: data.message,
-          errors: data.errors,
-          success: data.success
-        });
+      } else {
+        setMessage('Network error. Please check your connection and try again.');
       }
-
-    } catch (error) {
-      console.error('Login error:', error);
-      setMessage('Network error. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
