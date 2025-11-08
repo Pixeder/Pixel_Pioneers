@@ -1,0 +1,15 @@
+numpy
+pandas
+scikit-learn
+tqdm
+langchain
+groq
+sentence-transformers
+python-dotenv
+requests
+beautifulsoup4
+PyPDF2
+pdfplumber
+docx2txt
+matplotlib
+seaborn
