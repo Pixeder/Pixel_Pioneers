@@ -3,6 +3,7 @@ import { Quiz , Option , Question } from "../models/index.js";
 
 const createQuiz = asyncHandler(async (req, res) => {
   const { link } = req.body;
+  console.log(link);
   const userId = req.user._id;
 
   if(!userId){

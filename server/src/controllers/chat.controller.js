@@ -4,9 +4,9 @@ import { Chat, UserInput, Response, Quiz } from "../models/index.js";
 import { createQuiz } from "./quiz.controller.js";
 import { model as geminiModel } from "../gemini/gemini.js";
 
-const handleChatInteraction = asyncHandler(async (req, res) => {
+const handleChatInteraction = asyncHandler(async (req, res, next) => {
   // The `chatId` can be used to continue an existing conversation
-  const { userInput, category, chatId} = req.body;
+  const { userInput, category} = req.body;
   const user = req.user;
 
   if (!user) {
@@ -21,14 +21,12 @@ const handleChatInteraction = asyncHandler(async (req, res) => {
   }
 
   // 1. Find or create a chat session for the user and category
-  let chat = await Chat.findOne({ _id: chatId, user: user._id, category });
-
-  if (!chat) {
-    chat = await Chat.create({
+  let chat = await Chat.create({
       user: user._id,
       category,
     });
-  }
+
+    
 
   const inputType = category === "quiz" ? "link" : "query";
 
@@ -48,8 +46,9 @@ const handleChatInteraction = asyncHandler(async (req, res) => {
       // The `createQuiz` is an express handler, so we call it directly.
       // We need to attach the newly created userInput to the request for createQuiz to use
       req.newUserInput = newUserInput;
+      req.body.link = userInput;
       // It will handle sending the response.
-      return createQuiz(req, res);
+      return createQuiz(req, res, next);
 
     case "summarizer":
       // TODO: Implement summarizer logic, likely calling your ML model
