@@ -1,0 +1,86 @@
+import { Schema, model } from "mongoose";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
+const userSchema = new Schema(
+  {
+    fullName: {
+      type: String,
+      trim: true,
+    },
+    username: {
+      required: true,
+      type: String,
+      unique: true,
+      trim: true,
+      index: true,
+      lowercase: true,
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      sparse: true,
+      trim: true,
+    },
+    avatarURL: {
+      type: String,
+      default:
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/800px-User-avatar.svg.png",
+    },
+    password: {
+      required: true,
+      type: String,
+      minlength: 8,
+    },
+    gender: {
+      enum: ["male", "female", "others"],
+    },
+    refreshToken: {
+      type: String,
+    },
+  },
+  { timestamps: true }
+);
+
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    return next();
+  }
+
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
+
+userSchema.methods.isPasswordCorrect = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
+
+userSchema.methods.generateAccessToken = function () {
+  return jwt.sign(
+    {
+      id: this._id,
+      email: this.email,
+      username: this.username,
+    },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: `${process.env.ACCESS_TOKEN_EXPIRES}`,
+    }
+  );
+};
+
+userSchema.methods.generateRefreshToken = function () {
+  return jwt.sign(
+    {
+      id: this._id,
+    },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: `${process.env.REFRESH_TOKEN_EXPIRES}`,
+    }
+  );
+};
+
+export const User = model("User", userSchema);
