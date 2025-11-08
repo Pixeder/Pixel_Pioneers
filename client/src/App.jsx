@@ -6,8 +6,8 @@ import Register from './auth/Register';
 import YouTubeQuiz from './pages/YoutubeQuiz.jsx';
 import SyllabusResourcesHub from './pages/SyllabusResources.jsx';
 import SmartSummarizer from './pages/SmartSummarizer.jsx';
-import { Home } from 'lucide-react';
-import HomePage from './pages/Home.jsx';
+import ChatBotWidget from './hooks/ChatBot.jsx';
+
 import StudentSupportPage from './pages/Support.jsx';
 import SanaLabsLandingPage from './pages/Home.jsx';
 
@@ -57,7 +57,7 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<SanaLabsLandingPage/>} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
@@ -69,6 +69,7 @@ function App() {
 
           
         </Routes>
+         <ChatBotWidget position="bottom-right" />
       </Router>
     </AuthProvider>
   );

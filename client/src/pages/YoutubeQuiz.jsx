@@ -16,10 +16,13 @@ import {
   X,
   Youtube,
   BarChart3,
-  Brain
+  Brain,
+  Sparkles,
+  ArrowRight,
+  ChevronRight
 } from 'lucide-react';
 
-const YouTubeQuiz = () => {
+const YouTubeQuizPremium = () => {
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [videoId, setVideoId] = useState('');
   const [currentSection, setCurrentSection] = useState('input');
@@ -28,7 +31,6 @@ const YouTubeQuiz = () => {
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [quizHistory, setQuizHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
-  const [selectedHistoryItem, setSelectedHistoryItem] = useState(null);
 
   // Load history from memory on mount
   useEffect(() => {
@@ -38,7 +40,7 @@ const YouTubeQuiz = () => {
     }
   }, []);
 
-  // Sample quiz data
+  // Sample quiz data (keeping your original data structure)
   const quizzes = {
     technology: {
       id: 'technology',
@@ -401,7 +403,7 @@ const YouTubeQuiz = () => {
       weakTopics: results.weakTopics,
     };
 
-    const updatedHistory = [historyItem, ...quizHistory].slice(0, 10); // Keep last 10
+    const updatedHistory = [historyItem, ...quizHistory].slice(0, 10);
     setQuizHistory(updatedHistory);
     localStorage.setItem('quizHistory', JSON.stringify(updatedHistory));
   };
@@ -477,83 +479,71 @@ const YouTubeQuiz = () => {
   // History Modal
   if (showHistory) {
     return (
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-purple-500/20">
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <History className="w-6 h-6 text-white" />
-              <h2 className="text-2xl font-bold text-white">Quiz History</h2>
+      <div className="fixed inset-0 bg-black/95 backdrop-blur-2xl z-50 flex items-center justify-center p-4 animate-fade-in">
+        <div className="bg-gradient-to-br from-zinc-900/90 to-black/90 backdrop-blur-3xl rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-hidden border border-zinc-800/50 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+          <div className="border-b border-zinc-800/50 p-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-3xl font-light tracking-tight text-white mb-1">Quiz History</h2>
+                <p className="text-sm text-zinc-500">Your learning journey</p>
+              </div>
+              <button
+                onClick={() => setShowHistory(false)}
+                className="p-3 hover:bg-zinc-800/50 rounded-2xl transition-all duration-300 group"
+              >
+                <X className="w-5 h-5 text-zinc-400 group-hover:text-white transition" />
+              </button>
             </div>
-            <button
-              onClick={() => setShowHistory(false)}
-              className="p-2 hover:bg-white/20 rounded-lg transition"
-            >
-              <X className="w-6 h-6 text-white" />
-            </button>
           </div>
 
-          <div className="p-6 overflow-y-auto max-h-[calc(90vh-100px)]">
+          <div className="p-8 overflow-y-auto max-h-[calc(90vh-140px)] custom-scrollbar">
             {quizHistory.length === 0 ? (
-              <div className="text-center py-12">
-                <Brain className="w-16 h-16 text-gray-500 mx-auto mb-4 opacity-50" />
-                <p className="text-gray-400 text-lg">No quiz history yet</p>
-                <p className="text-gray-500 text-sm mt-2">Complete a quiz to see your history here</p>
+              <div className="text-center py-20">
+                <div className="w-20 h-20 rounded-full bg-zinc-800/30 flex items-center justify-center mx-auto mb-6">
+                  <History className="w-10 h-10 text-zinc-600" />
+                </div>
+                <p className="text-zinc-400 text-lg font-light">No quiz history yet</p>
+                <p className="text-zinc-600 text-sm mt-2">Complete a quiz to see your journey</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {quizHistory.map((item) => (
                   <div
                     key={item.id}
-                    className="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition cursor-pointer"
                     onClick={() => loadHistoryQuiz(item)}
+                    className="group p-6 bg-gradient-to-br from-zinc-900/50 to-transparent rounded-2xl border border-zinc-800/50 hover:border-zinc-700/70 transition-all duration-300 cursor-pointer hover:transform hover:scale-[1.01]"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-                        <div className="flex items-center gap-2 text-sm text-gray-400">
-                          <Clock className="w-4 h-4" />
+                        <h3 className="text-xl font-light text-white mb-2 group-hover:text-zinc-100 transition">{item.title}</h3>
+                        <div className="flex items-center gap-2 text-xs text-zinc-500">
+                          <Clock className="w-3.5 h-3.5" />
                           {item.date}
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className={`text-3xl font-bold ${
-                          item.percentage >= 80 ? 'text-green-400' :
-                          item.percentage >= 60 ? 'text-yellow-400' :
-                          'text-red-400'
+                        <div className={`text-4xl font-extralight tracking-tighter ${
+                          item.percentage >= 80 ? 'text-emerald-400' :
+                          item.percentage >= 60 ? 'text-amber-400' :
+                          'text-rose-400'
                         }`}>
                           {item.percentage}%
                         </div>
-                        <div className="text-sm text-gray-400">{item.score}/{item.total}</div>
+                        <div className="text-xs text-zinc-500 mt-1">{item.score}/{item.total} correct</div>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      {item.strongTopics.length > 0 && (
-                        <div>
-                          <div className="text-xs text-green-400 font-semibold mb-2">Strong Topics</div>
-                          <div className="space-y-1">
-                            {item.strongTopics.map((topic, idx) => (
-                              <div key={idx} className="text-xs text-gray-300 flex items-center gap-2">
-                                <CheckCircle className="w-3 h-3 text-green-500" />
-                                {topic}
-                              </div>
-                            ))}
-                          </div>
+                    <div className="flex gap-3 flex-wrap">
+                      {item.strongTopics.slice(0, 2).map((topic, idx) => (
+                        <div key={idx} className="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 text-xs font-light">
+                          {topic}
                         </div>
-                      )}
-                      {item.weakTopics.length > 0 && (
-                        <div>
-                          <div className="text-xs text-red-400 font-semibold mb-2">Weak Topics</div>
-                          <div className="space-y-1">
-                            {item.weakTopics.map((topic, idx) => (
-                              <div key={idx} className="text-xs text-gray-300 flex items-center gap-2">
-                                <AlertCircle className="w-3 h-3 text-red-500" />
-                                {topic}
-                              </div>
-                            ))}
-                          </div>
+                      ))}
+                      {item.weakTopics.slice(0, 2).map((topic, idx) => (
+                        <div key={idx} className="px-3 py-1.5 bg-rose-500/10 border border-rose-500/20 rounded-full text-rose-400 text-xs font-light">
+                          {topic}
                         </div>
-                      )}
+                      ))}
                     </div>
                   </div>
                 ))}
@@ -565,102 +555,135 @@ const YouTubeQuiz = () => {
     );
   }
 
-  // Input section
+  // Input section - Premium Minimalist Design
   if (currentSection === 'input') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-        {/* Animated background */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-10 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{animationDelay: '2s'}}></div>
-        </div>
+      <div className="min-h-screen bg-gradient-to-b from-black via-zinc-950 to-black relative overflow-hidden">
+        {/* Subtle grain texture */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZmlsdGVyIGlkPSJub2lzZSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuOSIgbnVtT2N0YXZlcz0iNCIgLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjbm9pc2UpIiBvcGFjaXR5PSIwLjAzIiAvPjwvc3ZnPg==')] opacity-30"></div>
+        
+        {/* Minimal gradient orbs */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-zinc-800/10 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-zinc-800/10 rounded-full blur-[120px]"></div>
 
-        <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
-          <div className="max-w-md w-full">
-            {/* Header with History Button */}
-            <div className="flex justify-end mb-4">
+        <div className="relative z-10 min-h-screen flex items-center justify-center p-6">
+          <div className="max-w-xl w-full">
+            {/* History Button */}
+            <div className="flex justify-end mb-8">
               <button
                 onClick={() => setShowHistory(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white font-semibold transition backdrop-blur-sm"
+                className="group flex items-center gap-3 px-5 py-2.5 bg-zinc-900/50 hover:bg-zinc-800/50 border border-zinc-800/50 hover:border-zinc-700/70 rounded-full transition-all duration-300 backdrop-blur-xl"
               >
-                <History className="w-5 h-5" />
-                History
+                <History className="w-4 h-4 text-zinc-500 group-hover:text-zinc-300 transition" />
+                <span className="text-sm font-light text-zinc-400 group-hover:text-zinc-200 transition">History</span>
                 {quizHistory.length > 0 && (
-                  <span className="bg-purple-600 text-white text-xs px-2 py-1 rounded-full">
+                  <span className="px-2 py-0.5 bg-zinc-800 text-zinc-400 text-xs font-light rounded-full border border-zinc-700">
                     {quizHistory.length}
                   </span>
                 )}
               </button>
             </div>
 
-            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl">
-              <div className="text-center mb-8">
-                <div className="inline-flex p-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl mb-4">
-                  <Brain className="w-12 h-12 text-white" />
+            <div className="backdrop-blur-3xl bg-gradient-to-br from-zinc-900/30 to-transparent border border-zinc-800/50 rounded-3xl p-12 shadow-[0_0_80px_rgba(0,0,0,0.3)]">
+              <div className="text-center mb-12">
+                <div className="inline-flex p-5 bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 rounded-3xl mb-6 border border-zinc-800/30">
+                  <Brain className="w-10 h-10 text-zinc-300" />
                 </div>
-                <h1 className="text-4xl font-black text-white mb-3">YouTube Quiz Master</h1>
-                <p className="text-gray-300">Transform videos into interactive learning experiences</p>
+                <h1 className="text-5xl font-extralight tracking-tight text-white mb-3">Quiz Master</h1>
+                <p className="text-zinc-500 font-light text-sm">Transform videos into knowledge</p>
               </div>
               
-              <form onSubmit={handleUrlSubmit} className="space-y-6">
+              <form onSubmit={handleUrlSubmit} className="space-y-8">
                 <div>
-                  <label className="block text-sm font-semibold text-white mb-3">YouTube URL</label>
+                  <label className="block text-xs uppercase tracking-wider text-zinc-600 mb-4 font-light">YouTube URL</label>
                   <input
                     type="text"
                     value={youtubeUrl}
                     onChange={(e) => setYoutubeUrl(e.target.value)}
                     placeholder="https://www.youtube.com/watch?v=..."
-                    className="w-full px-4 py-4 bg-white/5 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 transition"
+                    className="w-full px-5 py-4 bg-zinc-900/50 border border-zinc-800/50 rounded-2xl text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-700/70 transition font-light text-sm"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-lg shadow-purple-500/50"
+                  className="group w-full bg-white hover:bg-zinc-100 text-black font-light py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 text-sm tracking-wide hover:scale-[1.02] shadow-lg"
                 >
-                  <Play className="w-5 h-5" />
-                  Generate Quiz
+                  <span>Generate Quiz</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition" />
                 </button>
               </form>
 
-              <div className="mt-8 p-4 bg-white/5 border border-white/10 rounded-xl">
-                <p className="text-xs text-gray-300 mb-2 font-semibold flex items-center gap-2">
-                  <Lightbulb className="w-4 h-4 text-yellow-400" />
-                  Quick Tip
-                </p>
-                <p className="text-xs text-gray-400">Paste any educational YouTube video link to generate an instant quiz with personalized learning recommendations!</p>
+              <div className="mt-10 pt-8 border-t border-zinc-800/50">
+                <div className="flex items-start gap-3 px-5 py-4 bg-zinc-900/30 rounded-2xl border border-zinc-800/30">
+                  <Sparkles className="w-5 h-5 text-zinc-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-light text-zinc-400 leading-relaxed">
+                      Paste any educational video link to generate an intelligent quiz with personalized recommendations
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
+
+        <style jsx>{`
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(39, 39, 42, 0.3);
+            border-radius: 10px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(113, 113, 122, 0.5);
+            border-radius: 10px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(161, 161, 170, 0.7);
+          }
+          @keyframes fade-in {
+            from {
+              opacity: 0;
+            }
+            to {
+              opacity: 1;
+            }
+          }
+          .animate-fade-in {
+            animation: fade-in 0.3s ease-out;
+          }
+        `}</style>
       </div>
     );
   }
 
-  // Video section
+  // Video section - Premium Design
   if (currentSection === 'video') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
+      <div className="min-h-screen bg-gradient-to-b from-black via-zinc-950 to-black p-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
             <button
               onClick={() => setCurrentSection('input')}
-              className="text-white hover:text-purple-300 font-semibold flex items-center gap-2 transition"
+              className="group flex items-center gap-2 text-zinc-500 hover:text-white transition-all duration-300 font-light text-sm"
             >
-              ← Back to Input
+              <ChevronRight className="w-4 h-4 rotate-180 group-hover:-translate-x-1 transition" />
+              Back
             </button>
             <button
               onClick={() => setShowHistory(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white font-semibold transition"
+              className="flex items-center gap-2 px-4 py-2 bg-zinc-900/50 hover:bg-zinc-800/50 border border-zinc-800/50 rounded-full transition-all duration-300"
             >
-              <History className="w-5 h-5" />
-              History
+              <History className="w-4 h-4 text-zinc-500" />
+              <span className="text-sm font-light text-zinc-400">History</span>
             </button>
           </div>
           
-          <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl">
-            <h2 className="text-3xl font-black text-white mb-6">{selectedQuiz?.title}</h2>
+          <div className="backdrop-blur-3xl bg-gradient-to-br from-zinc-900/30 to-transparent border border-zinc-800/50 rounded-3xl p-10 shadow-[0_0_80px_rgba(0,0,0,0.3)]">
+            <h2 className="text-4xl font-extralight tracking-tight text-white mb-8">{selectedQuiz?.title}</h2>
             
-            <div className="bg-black rounded-2xl overflow-hidden mb-6 aspect-video shadow-2xl">
+            <div className="bg-black rounded-3xl overflow-hidden mb-8 aspect-video shadow-2xl border border-zinc-900">
               <iframe
                 width="100%"
                 height="100%"
@@ -672,22 +695,19 @@ const YouTubeQuiz = () => {
               ></iframe>
             </div>
 
-            <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl p-6 mb-6">
-              <div className="flex items-start gap-4">
-                <Lightbulb className="w-6 h-6 text-yellow-400 flex-shrink-0 mt-1" />
-                <div>
-                  <p className="text-white font-semibold mb-2">Watch & Learn</p>
-                  <p className="text-gray-300 text-sm">Watch the video above carefully, then test your understanding with our AI-generated quiz. You'll receive personalized recommendations based on your performance!</p>
-                </div>
-              </div>
+            <div className="flex items-start gap-4 p-6 bg-zinc-900/30 rounded-2xl border border-zinc-800/30 mb-8">
+              <Lightbulb className="w-5 h-5 text-zinc-500 flex-shrink-0 mt-1" />
+              <p className="text-sm text-zinc-400 font-light leading-relaxed">
+                Watch carefully, then test your understanding. You'll receive personalized recommendations based on your performance.
+              </p>
             </div>
 
             <button
               onClick={startQuiz}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 rounded-xl transition duration-200 flex items-center justify-center gap-2 text-lg shadow-lg shadow-purple-500/50"
+              className="group w-full bg-white hover:bg-zinc-100 text-black font-light py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 hover:scale-[1.01] shadow-lg"
             >
-              <Play className="w-6 h-6" />
-              Start Quiz
+              <span className="text-sm tracking-wide">Start Quiz</span>
+              <Play className="w-4 h-4 group-hover:scale-110 transition" />
             </button>
           </div>
         </div>
@@ -695,54 +715,55 @@ const YouTubeQuiz = () => {
     );
   }
 
-  // Quiz section
+  // Quiz section - Premium Design
   if (currentSection === 'quiz' && selectedQuiz) {
     const currentQuestion = selectedQuiz.questions[currentQuestionIndex];
     const progress = ((currentQuestionIndex + 1) / selectedQuiz.questions.length) * 100;
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
-        <div className="max-w-3xl mx-auto">
-          <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl">
-            <div className="mb-8">
-              <div className="flex justify-between items-center mb-3">
-                <span className="font-bold text-white text-lg">
+      <div className="min-h-screen bg-gradient-to-b from-black via-zinc-950 to-black p-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="backdrop-blur-3xl bg-gradient-to-br from-zinc-900/30 to-transparent border border-zinc-800/50 rounded-3xl p-10 shadow-[0_0_80px_rgba(0,0,0,0.3)]">
+            {/* Progress Section */}
+            <div className="mb-10">
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-sm font-light text-zinc-500">
                   Question {currentQuestionIndex + 1} of {selectedQuiz.questions.length}
                 </span>
-                <span className="px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-sm font-semibold">
+                <span className="px-3 py-1.5 bg-zinc-900/50 border border-zinc-800/50 rounded-full text-zinc-400 text-xs font-light">
                   {currentQuestion.topic}
                 </span>
               </div>
-              <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden">
+              <div className="w-full h-1 bg-zinc-900 rounded-full overflow-hidden">
                 <div
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 h-3 rounded-full transition-all duration-500 shadow-lg"
+                  className="h-1 bg-gradient-to-r from-zinc-600 to-zinc-400 rounded-full transition-all duration-500"
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>
             </div>
 
-            <h3 className="text-2xl font-bold text-white mb-8 leading-relaxed">{currentQuestion.question}</h3>
+            <h3 className="text-3xl font-light text-white mb-10 leading-relaxed">{currentQuestion.question}</h3>
 
-            <div className="space-y-4 mb-8">
+            <div className="space-y-3 mb-10">
               {currentQuestion.options.map((option, index) => (
                 <button
                   key={index}
                   onClick={() => handleAnswerSelect(index)}
-                  className={`w-full p-5 text-left rounded-xl border-2 transition-all duration-200 ${
+                  className={`w-full p-5 text-left rounded-2xl border transition-all duration-300 group ${
                     userAnswers[currentQuestionIndex] === index
-                      ? 'border-purple-500 bg-gradient-to-r from-purple-500/20 to-pink-500/20 shadow-lg shadow-purple-500/50'
-                      : 'border-white/20 bg-white/5 hover:border-white/40 hover:bg-white/10'
+                      ? 'border-zinc-700 bg-zinc-900/50'
+                      : 'border-zinc-800/50 bg-transparent hover:border-zinc-700/70 hover:bg-zinc-900/30'
                   }`}
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg ${
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-light text-sm border transition ${
                       userAnswers[currentQuestionIndex] === index
-                        ? 'bg-gradient-to-br from-purple-600 to-pink-600 text-white'
-                        : 'bg-white/10 text-gray-400'
+                        ? 'bg-white text-black border-transparent'
+                        : 'border-zinc-800 text-zinc-500 group-hover:border-zinc-700 group-hover:text-zinc-400'
                     }`}>
                       {String.fromCharCode(65 + index)}
                     </div>
-                    <span className="text-white font-medium">{option}</span>
+                    <span className="text-zinc-300 font-light">{option}</span>
                   </div>
                 </button>
               ))}
@@ -751,9 +772,9 @@ const YouTubeQuiz = () => {
             <button
               onClick={handleNextQuestion}
               disabled={userAnswers[currentQuestionIndex] === undefined}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition duration-200 shadow-lg"
+              className="w-full bg-white hover:bg-zinc-100 disabled:bg-zinc-900 disabled:text-zinc-600 disabled:cursor-not-allowed text-black font-light py-4 rounded-2xl transition-all duration-300 text-sm tracking-wide disabled:border disabled:border-zinc-800"
             >
-              {currentQuestionIndex === selectedQuiz.questions.length - 1 ? 'Finish Quiz' : 'Next Question →'}
+              {currentQuestionIndex === selectedQuiz.questions.length - 1 ? 'Finish Quiz' : 'Next Question'}
             </button>
           </div>
         </div>
@@ -761,83 +782,76 @@ const YouTubeQuiz = () => {
     );
   }
 
-  // Results section
+  // Results section - Premium Design
   if (currentSection === 'results' && selectedQuiz) {
     const results = calculateResults();
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
-        <div className="max-w-5xl mx-auto">
-          <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl">
+      <div className="min-h-screen bg-gradient-to-b from-black via-zinc-950 to-black p-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="backdrop-blur-3xl bg-gradient-to-br from-zinc-900/30 to-transparent border border-zinc-800/50 rounded-3xl p-12 shadow-[0_0_80px_rgba(0,0,0,0.3)]">
             {/* Header */}
-            <div className="text-center mb-8">
-              <div className="inline-flex p-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl mb-4">
-                <Award className="w-12 h-12 text-white" />
+            <div className="text-center mb-12">
+              <div className="inline-flex p-6 bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 rounded-3xl mb-6 border border-zinc-800/30">
+                <Award className="w-12 h-12 text-zinc-300" />
               </div>
-              <h2 className="text-4xl font-black text-white mb-2">Quiz Complete!</h2>
-              <p className="text-gray-300">Here's how you performed</p>
+              <h2 className="text-5xl font-extralight tracking-tight text-white mb-3">Quiz Complete</h2>
+              <p className="text-zinc-500 font-light">Your performance analysis</p>
             </div>
 
             {/* Score Section */}
-            <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-2xl p-8 mb-8 text-center">
-              <p className="text-gray-300 text-sm font-semibold mb-3">Your Score</p>
-              <h3 className="text-6xl font-black text-white mb-3">
-                {results.correct}/{results.total}
+            <div className="bg-gradient-to-br from-zinc-900/50 to-transparent border border-zinc-800/50 rounded-3xl p-10 mb-10 text-center">
+              <p className="text-xs uppercase tracking-wider text-zinc-600 mb-4 font-light">Your Score</p>
+              <h3 className="text-7xl font-extralight text-white mb-4 tracking-tighter">
+                {results.correct}<span className="text-zinc-600">/{results.total}</span>
               </h3>
-              <p className={`text-4xl font-bold mb-6 ${
-                results.percentage >= 80 ? 'text-green-400' :
-                results.percentage >= 60 ? 'text-yellow-400' :
-                'text-red-400'
+              <p className={`text-5xl font-extralight mb-8 tracking-tighter ${
+                results.percentage >= 80 ? 'text-emerald-400' :
+                results.percentage >= 60 ? 'text-amber-400' :
+                'text-rose-400'
               }`}>
                 {results.percentage}%
               </p>
-              <div className="w-full bg-white/10 rounded-full h-4 overflow-hidden">
+              <div className="w-full h-2 bg-zinc-900 rounded-full overflow-hidden max-w-md mx-auto">
                 <div
-                  className={`h-4 rounded-full transition-all duration-1000 ${
-                    results.percentage >= 80 ? 'bg-gradient-to-r from-green-500 to-emerald-500' :
-                    results.percentage >= 60 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
-                    'bg-gradient-to-r from-red-500 to-pink-500'
+                  className={`h-2 rounded-full transition-all duration-1000 ${
+                    results.percentage >= 80 ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' :
+                    results.percentage >= 60 ? 'bg-gradient-to-r from-amber-500 to-amber-400' :
+                    'bg-gradient-to-r from-rose-500 to-rose-400'
                   }`}
                   style={{ width: `${results.percentage}%` }}
                 ></div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              {/* Strong Topics */}
+            {/* Topics Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
               {results.strongTopics.length > 0 && (
-                <div className="bg-white/5 border border-green-500/20 rounded-2xl p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-green-500/20 rounded-lg">
-                      <CheckCircle className="text-green-400 w-6 h-6" />
-                    </div>
-                    <h4 className="text-xl font-bold text-white">Strong Topics</h4>
+                <div className="bg-gradient-to-br from-emerald-950/20 to-transparent border border-emerald-900/30 rounded-3xl p-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <CheckCircle className="w-5 h-5 text-emerald-500" />
+                    <h4 className="text-xl font-light text-white">Strong Topics</h4>
                   </div>
                   <div className="space-y-3">
                     {results.strongTopics.map((topic, idx) => (
-                      <div key={idx} className="flex items-center gap-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
-                        <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
-                        <span className="text-gray-200 font-semibold">{topic}</span>
+                      <div key={idx} className="px-4 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
+                        <span className="text-emerald-400 font-light text-sm">{topic}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Weak Topics */}
               {results.weakTopics.length > 0 && (
-                <div className="bg-white/5 border border-red-500/20 rounded-2xl p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-red-500/20 rounded-lg">
-                      <TrendingUp className="text-red-400 w-6 h-6" />
-                    </div>
-                    <h4 className="text-xl font-bold text-white">Room for Growth</h4>
+                <div className="bg-gradient-to-br from-rose-950/20 to-transparent border border-rose-900/30 rounded-3xl p-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <TrendingUp className="w-5 h-5 text-rose-500" />
+                    <h4 className="text-xl font-light text-white">Growth Areas</h4>
                   </div>
                   <div className="space-y-3">
                     {results.weakTopics.map((topic, idx) => (
-                      <div key={idx} className="flex items-center gap-3 p-3 bg-red-500/10 rounded-lg border border-red-500/20">
-                        <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-                        <span className="text-gray-200 font-semibold">{topic}</span>
+                      <div key={idx} className="px-4 py-3 bg-rose-500/10 border border-rose-500/20 rounded-2xl">
+                        <span className="text-rose-400 font-light text-sm">{topic}</span>
                       </div>
                     ))}
                   </div>
@@ -845,28 +859,23 @@ const YouTubeQuiz = () => {
               )}
             </div>
 
-            {/* Recommendations Section */}
+            {/* Recommendations */}
             {results.weakTopics.length > 0 && (
-              <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-2xl p-6 mb-8">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl">
-                    <Lightbulb className="w-6 h-6 text-white" />
-                  </div>
+              <div className="bg-gradient-to-br from-zinc-900/50 to-transparent border border-zinc-800/50 rounded-3xl p-10 mb-10">
+                <div className="flex items-center gap-3 mb-8">
+                  <Lightbulb className="w-6 h-6 text-zinc-500" />
                   <div>
-                    <h4 className="text-2xl font-bold text-white">Personalized Learning Recommendations</h4>
-                    <p className="text-gray-300 text-sm">Strengthen your weak areas with these curated resources</p>
+                    <h4 className="text-2xl font-light text-white">Recommended Resources</h4>
+                    <p className="text-zinc-500 text-sm font-light mt-1">Curated to strengthen your weak areas</p>
                   </div>
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-8">
                   {results.weakTopics.map((topic, idx) => {
                     const recommendations = getRecommendationsForTopic(topic);
                     return (
-                      <div key={idx} className="bg-white/5 rounded-xl p-5">
-                        <h5 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                          <span className="w-2 h-2 bg-red-400 rounded-full"></span>
-                          {topic}
-                        </h5>
+                      <div key={idx} className="border-t border-zinc-800/30 pt-6 first:border-t-0 first:pt-0">
+                        <h5 className="text-lg font-light text-zinc-300 mb-4">{topic}</h5>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                           {recommendations.map((rec, recIdx) => {
                             const Icon = getIconForResourceType(rec.type);
@@ -876,18 +885,16 @@ const YouTubeQuiz = () => {
                                 href={rec.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="group flex items-start gap-3 p-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-500/50 rounded-lg transition"
+                                className="group flex items-start gap-3 p-4 bg-zinc-900/30 hover:bg-zinc-900/50 border border-zinc-800/50 hover:border-zinc-700/70 rounded-2xl transition-all duration-300"
                               >
-                                <div className="p-2 bg-blue-500/20 rounded-lg flex-shrink-0">
-                                  <Icon className="w-4 h-4 text-blue-400" />
-                                </div>
+                                <Icon className="w-4 h-4 text-zinc-500 flex-shrink-0 mt-1" />
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-white text-sm font-semibold group-hover:text-blue-400 transition truncate">
+                                  <p className="text-zinc-300 text-sm font-light group-hover:text-white transition truncate">
                                     {rec.title}
                                   </p>
-                                  <p className="text-xs text-gray-400 capitalize">{rec.type}</p>
+                                  <p className="text-xs text-zinc-600 capitalize mt-1">{rec.type}</p>
                                 </div>
-                                <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-400 transition flex-shrink-0" />
+                                <ExternalLink className="w-3.5 h-3.5 text-zinc-600 group-hover:text-zinc-400 transition flex-shrink-0" />
                               </a>
                             );
                           })}
@@ -899,27 +906,27 @@ const YouTubeQuiz = () => {
               </div>
             )}
 
-            {/* Topic Performance Breakdown */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <BarChart3 className="w-6 h-6 text-purple-400" />
-                <h4 className="text-xl font-bold text-white">Detailed Performance</h4>
+            {/* Topic Performance */}
+            <div className="bg-gradient-to-br from-zinc-900/50 to-transparent border border-zinc-800/50 rounded-3xl p-8 mb-10">
+              <div className="flex items-center gap-3 mb-6">
+                <BarChart3 className="w-5 h-5 text-zinc-500" />
+                <h4 className="text-xl font-light text-white">Performance Breakdown</h4>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {Object.entries(results.topicPerformance).map(([topic, perf], idx) => {
                   const percentage = Math.round((perf.correct / perf.total) * 100);
                   return (
-                    <div key={idx} className="bg-white/5 rounded-lg p-4">
+                    <div key={idx}>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-white font-semibold">{topic}</span>
-                        <span className="text-gray-300 text-sm">{perf.correct}/{perf.total}</span>
+                        <span className="text-zinc-300 font-light text-sm">{topic}</span>
+                        <span className="text-zinc-500 text-xs">{perf.correct}/{perf.total}</span>
                       </div>
-                      <div className="w-full bg-white/10 rounded-full h-2">
+                      <div className="w-full h-1.5 bg-zinc-900 rounded-full overflow-hidden">
                         <div
-                          className={`h-2 rounded-full transition-all duration-500 ${
-                            percentage === 100 ? 'bg-gradient-to-r from-green-500 to-emerald-500' :
-                            percentage >= 50 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
-                            'bg-gradient-to-r from-red-500 to-pink-500'
+                          className={`h-1.5 rounded-full transition-all duration-500 ${
+                            percentage === 100 ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' :
+                            percentage >= 50 ? 'bg-gradient-to-r from-amber-500 to-amber-400' :
+                            'bg-gradient-to-r from-rose-500 to-rose-400'
                           }`}
                           style={{ width: `${percentage}%` }}
                         ></div>
@@ -934,16 +941,16 @@ const YouTubeQuiz = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={handleRetakeQuiz}
-                className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-lg"
+                className="flex-1 bg-white hover:bg-zinc-100 text-black font-light py-4 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 text-sm tracking-wide hover:scale-[1.01]"
               >
-                <RotateCcw className="w-5 h-5" />
-                Try Another Video
+                <RotateCcw className="w-4 h-4" />
+                New Quiz
               </button>
               <button
                 onClick={() => setShowHistory(true)}
-                className="flex-1 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-4 rounded-xl transition duration-200 flex items-center justify-center gap-2"
+                className="flex-1 bg-zinc-900/50 hover:bg-zinc-800/50 border border-zinc-800/50 hover:border-zinc-700/70 text-white font-light py-4 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 text-sm tracking-wide"
               >
-                <History className="w-5 h-5" />
+                <History className="w-4 h-4" />
                 View History
               </button>
             </div>
@@ -954,4 +961,4 @@ const YouTubeQuiz = () => {
   }
 };
 
-export default YouTubeQuiz;
+export default YouTubeQuizPremium;
